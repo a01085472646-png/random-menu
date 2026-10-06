@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="결정 장애는 이제 그만! 오늘 뭐 먹을지 고민될 때 버튼 하나로 한식, 중식, 일식, 양식 맛있는 메뉴를 랜덤으로 추천받아보세요.">
+  <title>오늘 뭐 먹지? | 랜덤 메뉴 추천</title>
+  
+  <!-- Google Fonts: Pretendard 대체 및 감성 폰트 (Noto Sans KR + Montserrat) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;900&family=Outfit:wght@600;800&display=swap" rel="stylesheet">
+  
+  <!-- CSS 스타일시트 -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- 파비콘 (음식 이모지 SVG) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>">
+</head>
+<body>
+  <!-- 배경 데코레이션 부유 이모지 요소 -->
+  <div class="floating-bg" aria-hidden="true">
+    <span class="float-item f1">🍕</span>
+    <span class="float-item f2">🍣</span>
+    <span class="float-item f3">🍜</span>
+    <span class="float-item f4">🍔</span>
+    <span class="float-item f5">🥟</span>
+    <span class="float-item f6">🍲</span>
+    <span class="float-item f7">🌮</span>
+    <span class="float-item f8">🍗</span>
+  </div>
+
+  <!-- 파티클 효과 캔버스 -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="app-container">
+    <!-- 헤더 영역 -->
+    <header class="header">
+      <div class="badge">
+        <span class="badge-icon">✨</span>
+        <span>결정 장애 탈출 프로젝트</span>
+      </div>
+      <h1 class="main-title">오늘 뭐 먹지?</h1>
+      <p class="subtitle">매일 반복되는 고민 끝! 버튼을 누르면 딱 정해드립니다 😋</p>
+      
+      <!-- 사운드 토글 버튼 -->
+      <button id="sound-toggle" class="sound-btn" title="효과음 켜기/끄기" aria-label="효과음 토글">
+        <span class="sound-icon">🔊</span>
+        <span class="sound-text">효과음 ON</span>
+      </button>
+    </header>
+
+    <!-- 카테고리 필터 탭 -->
+    <nav class="category-nav" aria-label="메뉴 카테고리 필터">
+      <button class="cat-chip active" data-category="all">전체보기 🌈</button>
+      <button class="cat-chip" data-category="korean">한식 🍚</button>
+      <button class="cat-chip" data-category="chinese">중식 🥟</button>
+      <button class="cat-chip" data-category="japanese">일식 🍣</button>
+      <button class="cat-chip" data-category="western">양식 🍕</button>
+      <button class="cat-chip" data-category="asian">아시안/분식 🍜</button>
+    </nav>
+
+    <!-- 메인 추천 룰렛 & 결과 섹션 -->
+    <main class="recommend-box">
+      <!-- 슬롯 / 룰렛 디스플레이 카드 -->
+      <div class="display-card" id="display-card">
+        <div class="food-emoji-container">
+          <div class="food-emoji" id="food-emoji">🍽️</div>
+          <div class="emoji-glow"></div>
+        </div>
+
+        <div class="food-info">
+          <span class="food-category-badge" id="food-category">두근두근!</span>
+          <h2 class="food-name" id="food-name">어떤 메뉴가 나올까요?</h2>
+          <p class="food-desc" id="food-desc">아래 '메뉴 추천하기' 버튼을 꾹 눌러보세요!</p>
+          
+          <div class="food-tags" id="food-tags">
+            <span class="tag">#점심추천</span>
+            <span class="tag">#저녁추천</span>
+            <span class="tag">#맛있겠다</span>
+          </div>
+        </div>
+
+        <!-- 지도 연동 액션바 (선택 완료 후 노출) -->
+        <div class="action-links" id="action-links" style="display: none;">
+          <a href="#" target="_blank" rel="noopener noreferrer" class="map-link naver-map" id="naver-map-btn">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727v12.845z"/>
+            </svg>
+            주변 맛집 찾기
+          </a>
+          <button class="copy-btn" id="copy-btn" title="친구에게 공유">
+            📋 메뉴 복사
+          </button>
+        </div>
+      </div>
+
+      <!-- 핵심 버튼 -->
+      <div class="cta-wrapper">
+        <button id="recommend-btn" class="recommend-btn" type="button">
+          <span class="btn-sparkle">✨</span>
+          <span class="btn-text">메뉴 추천하기</span>
+          <span class="btn-arrow">🎲</span>
+        </button>
+      </div>
+    </main>
+
+    <!-- 추천 히스토리 (최근 추천 목록) -->
+    <section class="history-section" id="history-section">
+      <h3 class="history-title">최근 추천받은 메뉴</h3>
+      <div class="history-list" id="history-list">
+        <p class="history-empty">아직 뽑은 메뉴가 없어요.</p>
+      </div>
+    </section>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+      <p>오늘의 맛있는 한 끼를 응원합니다! • 맛있는 식사 되세요 🥄🥢</p>
+    </footer>
+  </div>
+
+  <!-- 알림 토스트 메시지 -->
+  <div id="toast" class="toast">메뉴가 클립보드에 복사되었습니다!</div>
+
+  <!-- JS 스크립트 -->
+  <script src="app.js"></script>
+</body>
+</html>
